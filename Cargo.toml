@@ -1,0 +1,10 @@
+[package]
+name = "netrt"
+version = "0.1.0"
+authors = ["Thomas Wickham <thomas@wickham.epimeros.org>"]
+repository = "https://github.com/mackwic/netrt"
+homepage = "https://github.com/mackwic/netrt"
+licence = "MPL2"
+readme = "README.md"
+description = "Real-Time protocol over UDP sockets"
+
