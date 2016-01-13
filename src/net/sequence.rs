@@ -26,4 +26,31 @@ impl<I: Clone + Step + Zero + One> Sequence<I> {
         };
         self.0.clone()
     }
+
+    pub fn stepu(&mut self) { let _ = self.step(); }
+}
+
+#[test]
+fn test_step_incr() {
+    let mut seq = Sequence::new(0 as u8);
+    assert_eq!(0, seq.0);
+    seq.step();
+    assert_eq!(1, seq.0);
+    seq.step();
+    assert_eq!(2, seq.0);
+    seq.step();
+    assert_eq!(3, seq.0);
+    seq.step();
+    assert_eq!(4, seq.0)
+}
+
+#[test]
+fn test_step_cycle() {
+    use std::u8;
+    let mut seq = Sequence::new(0 as u8);
+    for _ in 0..(u8::MAX as u16 + 1) { seq.stepu() }
+    assert_eq!(0, seq.0);
+    seq.step();
+    for _ in 0..(u8::MAX as u16 + 1) { seq.stepu() }
+    assert_eq!(1, seq.0)
 }
