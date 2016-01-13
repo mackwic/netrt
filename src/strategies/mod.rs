@@ -4,15 +4,7 @@
    file, You can obtain one at http://mozilla.org/MPL/2.0/.
 */
 
-use net::connection;
-
 /// All the strategies
 trait SendStrategy {
-
-    fn queue_for_send(&self, connection: connection::Connection) {
-        ()
-    }
-
-    #[inline]
     fn noop() {}
 }

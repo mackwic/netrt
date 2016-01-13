@@ -4,7 +4,5 @@
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
 */
 
-pub mod connection;
-pub mod socket;
-pub mod rtt;
+pub mod packet;
 pub mod sequence;
