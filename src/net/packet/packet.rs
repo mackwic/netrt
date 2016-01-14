@@ -4,28 +4,51 @@
    file, You can obtain one at http://mozilla.org/MPL/2.0/.
 */
 
+use std::convert::{From, Into};
 use net::packet::size::*;
 
-#[derive(Debug, PartialEq, Eq)]
-struct PacketDescriptor(header::PacketType, IdSizeType);
+
 
 mod header {
 
     use std::convert::{From, Into};
-    //use net::packet::size::*;
+    use net::packet::size::*;
 
-    /// internal representation of PacketHeader. Use the accessors
-    #[derive(Debug, PartialEq, Eq)]
-    struct PacketHeader(u64);
-    /// internal repsentation. Use the methods
-    #[derive(Debug, PartialEq, Eq)]
-    struct AckBitField(u64);
-
+    /// a packet could have data or be an heartbeat
     #[derive(Debug, PartialEq, Eq)]
     pub enum PacketType {
         HeartBeat, Data
     }
     const MASK_TYPE : u8 = 0b1000_0000;
+
+    /// hold the packet attributes
+    #[derive(Debug, PartialEq, Eq)]
+    struct PacketDescriptor(PacketType, IdSizeType);
+
+    /// internal binary representation of PacketFlags. Use the accessors
+    #[derive(Debug, PartialEq, Eq)]
+    struct PacketFlags(u64);
+
+    /// internal binary reprentation. Use the methods
+    #[derive(Debug, PartialEq, Eq)]
+    struct AckBitField(u64);
+
+    #[derive(Debug, PartialEq, Eq)]
+    struct PacketHeader<Size : IdSize> {
+        flags: PacketFlags,
+        acks:  AckBitField,
+        packet_id: Size,
+        last_ack:  Size
+    }
+
+    impl<'a> From<&'a u8> for PacketDescriptor {
+        fn from(other: &'a u8) -> PacketDescriptor {
+            PacketDescriptor(PacketType::from(other), IdSizeType::from(other))
+        }
+    }
+    impl From<u8> for PacketDescriptor {
+        fn from(other: u8) -> PacketDescriptor { PacketDescriptor::from(&other) }
+    }
 
     impl<'a> From<&'a u8> for PacketType {
         fn from(other: &'a u8) -> PacketType {
@@ -58,10 +81,10 @@ mod header {
         }
     }
 
-    impl PacketHeader {
-        pub fn header(&self) -> super::PacketDescriptor {
+    impl PacketFlags {
+        pub fn header(&self) -> PacketDescriptor {
             let first_byte : u8 = (self.0 >> 56) as u8;
-            super::PacketDescriptor(first_byte.into(), first_byte.into())
+            PacketDescriptor::from(first_byte)
         }
 
         pub fn ack_bitfield(&self) -> AckBitField {
@@ -74,19 +97,19 @@ mod header {
         use net::packet::size::IdSizeType;
         use super::PacketDescriptor;
 
-        let tmp = PacketHeader(0xC000_0000_0000_0000);
+        let tmp = PacketFlags(0xC000_0000_0000_0000);
         assert_eq!(PacketDescriptor(PacketType::Data, IdSizeType::Short), tmp.header());
-        let tmp = PacketHeader(0x8000_0000_0000_0000);
+        let tmp = PacketFlags(0x8000_0000_0000_0000);
         assert_eq!(PacketDescriptor(PacketType::Data, IdSizeType::Long), tmp.header());
-        let tmp = PacketHeader(0x4000_0000_0000_0000);
+        let tmp = PacketFlags(0x4000_0000_0000_0000);
         assert_eq!(PacketDescriptor(PacketType::HeartBeat, IdSizeType::Short), tmp.header());
-        let tmp = PacketHeader(0);
+        let tmp = PacketFlags(0);
         assert_eq!(PacketDescriptor(PacketType::HeartBeat, IdSizeType::Long), tmp.header());
     }
 
     #[test]
     fn ack_bitfield() {
-        let tmp = PacketHeader(0xdead_beef_b00b_cafe);
+        let tmp = PacketFlags(0xdead_beef_b00b_cafe);
         assert_eq!(AckBitField(0xad_beef_b00b_cafe_00), tmp.ack_bitfield());
     }
 
