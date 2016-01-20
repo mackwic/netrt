@@ -8,3 +8,10 @@ licence = "MPL2"
 readme = "README.md"
 description = "Real-Time protocol over UDP sockets"
 
+[dependencies]
+expectest = "0.4"
+log = "0.3.3"
+mio = "0.5"
+quick-error = "*"
+
+[dev-dependencies]

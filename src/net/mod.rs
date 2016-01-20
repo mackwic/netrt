@@ -5,4 +5,6 @@
 */
 
 pub mod packet;
+pub mod link;
+pub mod connection;
 pub mod sequence;

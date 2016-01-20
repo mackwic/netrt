@@ -47,7 +47,9 @@ mod header {
         }
     }
     impl From<u8> for PacketDescriptor {
-        fn from(other: u8) -> PacketDescriptor { PacketDescriptor::from(&other) }
+        fn from(other: u8) -> PacketDescriptor {
+            PacketDescriptor(PacketType::from(other), IdSizeType::from(other))
+        }
     }
 
     impl<'a> From<&'a u8> for PacketType {
@@ -58,13 +60,8 @@ mod header {
             }
         }
     }
-    impl Into<PacketType> for u8 {
-        fn into(self) -> PacketType {
-            match self & MASK_TYPE {
-                MASK_TYPE => PacketType::Data,
-                _ => PacketType::HeartBeat
-            }
-        }
+    impl From<u8> for PacketType {
+        fn from(other: u8) -> PacketType { PacketType::from(&other) }
     }
 
     #[test]
@@ -75,9 +72,27 @@ mod header {
         ];
 
         for v in vals.iter() {
-            let t1 = PacketType::from(v);
-            let t2 : PacketType = v.into();
+            let t1 = PacketType::from(*v);
+            let t2 = PacketType::from(v);
+            let t3 : PacketType = v.into();
             assert_eq!(t1, t2);
+            assert_eq!(t2, t3);
+        }
+    }
+
+    #[test]
+    fn equivalence_packet_descriptor() {
+        let vals = [
+            0b1100_0000, 0b1100_0001, 0b1101_0000, 0b1111_1111,
+            0b0000_0000, 0b0000_1111, 0b1011_1111, 0b1010_1010
+        ];
+
+        for v in vals.iter() {
+            let t1 = PacketDescriptor::from(*v);
+            let t2 = PacketDescriptor::from(v);
+            let t3 : PacketDescriptor = v.into();
+            assert_eq!(t1, t2);
+            assert_eq!(t2, t3);
         }
     }
 
@@ -94,9 +109,6 @@ mod header {
 
     #[test]
     fn header() {
-        use net::packet::size::IdSizeType;
-        use super::PacketDescriptor;
-
         let tmp = PacketFlags(0xC000_0000_0000_0000);
         assert_eq!(PacketDescriptor(PacketType::Data, IdSizeType::Short), tmp.header());
         let tmp = PacketFlags(0x8000_0000_0000_0000);

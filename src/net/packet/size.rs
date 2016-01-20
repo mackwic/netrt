@@ -43,17 +43,8 @@ impl<'a> From<&'a u8> for IdSizeType {
     }
 }
 
-/*impl From<u8> for IdSizeType {
+impl From<u8> for IdSizeType {
     fn from(other: u8) -> IdSizeType { IdSizeType::from(&other) }
-}*/
-
-impl Into<IdSizeType> for u8 {
-    fn into(self) -> IdSizeType {
-        match self & MASK_SIZE {
-            MASK_SIZE => IdSizeType::Short,
-            _ => IdSizeType::Long
-        }
-    }
 }
 
 #[test]

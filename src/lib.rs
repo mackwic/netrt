@@ -6,10 +6,21 @@
 
 #![feature(step_trait)]
 #![feature(zero_one)]
+#![feature(slice_patterns)]
 
 // TODO: remove when done
 #![allow(dead_code)]
 #![allow(unused_imports)]
+
+/** TEST UTILS **/
+#[cfg(test)]
+#[macro_use(expect)]
+extern crate expectest;
+#[cfg(test)]
+mod test_utils;
+/** END TEST UTILS */
+
+#[macro_use] extern crate quick_error;
 
 mod net;
 mod strategies;
